@@ -1,0 +1,12 @@
+name: idx-exchange-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas
+  - matplotlib
+  - seaborn
+  - jupyterlab
+  - ipykernel
+  - pyarrow
+  - requests

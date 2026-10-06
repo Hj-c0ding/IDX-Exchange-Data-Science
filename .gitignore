@@ -1,0 +1,23 @@
+# Local datasets
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+*.zip
+
+# Generated data and notebooks outputs
+data/
+outputs/
+Data and Python File for Internship/*.csv
+.ipynb_checkpoints/
+
+# Python cache and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
