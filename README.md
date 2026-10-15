@@ -26,3 +26,10 @@ The source columns are mapped as follows:
 - Never commit raw MLS files, notebook outputs containing raw records, API keys, access tokens, or `.env` files.
 - The downloader scripts read `IDXEXCHANGE_AUTH_ENDPOINT` from the local environment and write downloaded files under the ignored `data/` directory. Set that variable locally; do not place its value in source code.
 - Before committing, inspect `git status --short` and `git diff --cached`.
+
+## Weekly deliverable progress
+
+- **Week 1 — Exploration:** Completed the initial exploration of sold CRMLS records, including the required property filters and requested variable distributions. See [`01_exploration.ipynb`](./01_exploration.ipynb).
+- **Week 2 — Data preparation:** Completed the data preparation workflow used to organize the selected records for modeling.
+- **Week 3 — Data preprocessing:** Completed missing-value handling, categorical encoding, numeric scaling, and the time-ordered train/test split. See [`02_preprocessing.ipynb`](./02_preprocessing.ipynb).
+- **Week 4 — Baseline model:** Completed a linear regression baseline, evaluated it with test-set R², and recorded the result in the notebook. See [`03_baseline_model.ipynb`](./03_baseline_model.ipynb).
