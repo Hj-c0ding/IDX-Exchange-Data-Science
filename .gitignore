@@ -21,3 +21,7 @@ venv/
 .env
 .env.*
 !.env.example
+
+# Local context and diagnostics
+PROJECT_CONTEXT.md
+DIAGNOSTICS.md
