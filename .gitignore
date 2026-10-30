@@ -25,3 +25,9 @@ venv/
 # Local context and diagnostics
 PROJECT_CONTEXT.md
 DIAGNOSTICS.md
+
+# Agent configuration & workspace customizations
+.agents/
+
+# OS artifacts
+.DS_Store

@@ -11,3 +11,9 @@ dependencies:
   - ipykernel
   - pyarrow
   - requests
+  - geopandas
+  - pyogrio
+  - shapely
+  - pyproj
+  - nbformat
+  - nbconvert
