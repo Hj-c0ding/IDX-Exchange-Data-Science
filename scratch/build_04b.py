@@ -1,4 +1,5 @@
 """Builds 04b_feature_engineering.ipynb (Week 6). Run: python scratch/build_04b.py, then execute with nbconvert."""
+from pathlib import Path
 import nbformat as nbf
 
 nb = nbf.v4.new_notebook()
@@ -95,7 +96,7 @@ print(f'max |corr| = {audit["corr with log price (train)"].abs().max():.3f} (< 0
 
 md('''
 ## 3. Validation ablation and feature-set selection
-Every choice below uses validation (April 2026) only. DT depth 18 / leaf 5 and RF leaf 3 are the Week 5 settings, held fixed so that feature sets are compared like-for-like (limitation: the DT depth grid edge was not re-extended). Validation R2 is ignored (three April sales of $645M+ hold ~98% of the variance); MdAPE and MAE decide.
+Every choice below uses validation (April 2026) only. DT depth 18 / leaf 5 and RF leaf 3 are the Week 5 settings, held fixed so that feature sets are compared like-for-like (note: in the sensitivity check below, depth 24 beat depth 18 on F0 validation, and the final DT test fit still used depth 18, listed as a limitation). Validation R2 is ignored (three April sales of $645M+ hold ~98% of the variance); MdAPE and MAE decide.
 
 **Selection rule (fixed before any test scoring):** a model moves off F0 only if the best alternative set improves validation MdAPE by at least **0.10 percentage points** AND also improves validation MAE. Otherwise F0 is kept. The 0.10 pp threshold is a judgment call (the plan did not specify one); it is meant to avoid chasing differences that small.
 ''')
@@ -159,24 +160,35 @@ for mf in [5, 20, 50]:
 
 df_lr_mf = pd.DataFrame(lr_mf_sweep)
 display(df_lr_mf.style.format({'val_MAE': '${:,.0f}', 'val_MdAPE': '{:.2%}', 'val_R2': '{:.4f}'}).hide(axis='index'))
-print("Finding: DT depth extension to 24 improves F0 from 10.39% to 10.27% MdAPE. Compared to tuned F2 target (10.24%), the delta is only 0.035 pp (< 0.10 pp). LR F3 is stable across mf thresholds (9.58% to 9.63%). Neither sweep alters the chosen configurations (LR F3, DT F0, RF F0).")
+f0_d18 = df_dt_sweep.loc[df_dt_sweep['feature_set'].eq('F0') & df_dt_sweep['max_depth'].eq(18) & df_dt_sweep['min_samples_leaf'].eq(5), 'val_MdAPE'].iloc[0]
+f0_best = df_dt_sweep.loc[df_dt_sweep['feature_set'].eq('F0'), 'val_MdAPE'].min()
+f2_best = df_dt_sweep.loc[df_dt_sweep['feature_set'].eq('F2'), 'val_MdAPE'].min()
+dt_delta_pp = (f0_best - f2_best) * 100
+lr_mf_min, lr_mf_max = df_lr_mf['val_MdAPE'].min(), df_lr_mf['val_MdAPE'].max()
+lr_mae_span = df_lr_mf['val_MAE'].max() - df_lr_mf['val_MAE'].min()
+print(f'Finding: DT depth extension to 24 improves F0 validation MdAPE from {f0_d18:.2%} (depth 18) to {f0_best:.2%} (depth 24); '
+      f'compared to tuned F2 target ({f2_best:.2%}), the delta is only {dt_delta_pp:.3f} pp (< {MIN_GAIN*100:.2f} pp), '
+      f'and the final DT test fit still uses depth 18 (listed as a limitation). '
+      f'LR F3 is essentially tied across min_frequency thresholds ({lr_mf_min:.2%} to {lr_mf_max:.2%} MdAPE, '
+      f'MAE span ${lr_mae_span:,.0f}). Neither sweep alters the chosen configurations '
+      f'(LR {chosen["LR"][0]}, DT {chosen["DT"][0]}, RF {chosen["RF"][0]}).')
 ''')
 
 md('''
 ### Selection threshold sensitivity table
-The selection rule requires >= 0.10 pp validation MdAPE gain AND lower MAE to adopt a new feature set. **Note:** the 0.10 pp threshold was set as a judgment call after viewing the validation table (to avoid adopting complex sets for negligible sub-0.10 pp differences). The table below demonstrates what each model would choose across different threshold levels (0.05, 0.10, and 0.20 pp):
+The selection rule requires >= 0.10 pp validation MdAPE gain AND lower MAE to adopt a new feature set. **Note:** the 0.10 pp threshold was set as a judgment call after viewing the validation table (to avoid adopting complex sets for negligible sub-0.10 pp differences). The table below demonstrates what each model would choose across different threshold levels (0.050, 0.100, and 0.200 pp), with computed gains shown to 3 decimals:
 ''')
 
 code('''
 sens_rows = []
 for thresh in [0.0005, 0.0010, 0.0020]:
-    row = {'Threshold (pp MdAPE)': f'{thresh*100:.2f} pp'}
+    row = {'Threshold (pp MdAPE)': f'{thresh*100:.3f} pp'}
     for m in ['LR', 'DT', 'RF']:
         cand = best.loc[best['model'].eq(m) & ~best['feature_set'].eq('F0')].sort_values('MdAPE').iloc[0]
         gain = base.loc[m, 'MdAPE'] - cand['MdAPE']
         mae_better = cand['MAE'] < base.loc[m, 'MAE']
         choice = cand['feature_set'] if (gain >= thresh and mae_better) else 'F0'
-        row[m] = f'{choice} (gain {gain*100:+.2f} pp, MAE {"better" if mae_better else "worse"})'
+        row[m] = f'{choice} (best alt {cand["feature_set"]}: gain {gain*100:+.3f} pp, MAE {"better" if mae_better else "worse"})'
     sens_rows.append(row)
 
 df_sens = pd.DataFrame(sens_rows)
@@ -460,11 +472,11 @@ display(Markdown(f"""
 - Why so little: latitude/longitude and ZIP already carry most of the location signal, so districts add little for trees (RF importance of all district columns combined: {imp_district:.3f}); trees also cannot predict above the ~$8.9M training cap, which is where R2 is decided.
 - R2 is dominated by the ~44 test sales above $10M, so MdAPE and MAE are the primary yardsticks.
 
-**Limitations / next steps.** DT depth was extended to 24 on validation and confirmed that F0 maintains parity with F2 target (delta only 0.035 pp); district encodings tried were rare-grouped one-hot and 5-fold target encoding; no district-level aggregates (price per sqft) were built; no rolling-origin backtest yet (Week 8). 76 homes ({report.loc['unmatched', 'pct']:.3f}%) have no district. Week 7 will test gradient boosting, which typically uses categorical/geographic features better than a single tree.
+**Limitations / next steps.** On validation, DT depth 24 ({f0_best:.2%} MdAPE) beat depth 18 ({f0_d18:.2%} MdAPE) on F0 and confirmed parity with tuned F2 target ({f2_best:.2%}, delta {dt_delta_pp:.3f} pp), while the final DT test fit still used depth 18 (listed as a limitation); LR F3 was essentially tied across district min_frequency thresholds ({lr_mf_min:.2%} to {lr_mf_max:.2%} MdAPE); district encodings tried were rare-grouped one-hot and 5-fold target encoding; no district-level aggregates (price per sqft) were built; no rolling-origin backtest yet (Week 8). 76 homes ({report.loc['unmatched', 'pct']:.3f}%) have no district. Week 7 will test gradient boosting, which typically uses categorical/geographic features better than a single tree.
 """))
 ''')
 
 nb['cells'] = cells
 nb['metadata']['kernelspec'] = {'display_name': 'Python 3', 'language': 'python', 'name': 'python3'}
-nbf.write(nb, '04b_feature_engineering.ipynb')
+nbf.write(nb, Path(__file__).resolve().parent.parent / '04b_feature_engineering.ipynb')
 print('wrote 04b_feature_engineering.ipynb with', len(cells), 'cells')
