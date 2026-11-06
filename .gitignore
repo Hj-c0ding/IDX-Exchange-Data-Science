@@ -25,6 +25,9 @@ venv/
 # Local context and diagnostics
 PROJECT_CONTEXT.md
 DIAGNOSTICS.md
+AUDIT.md
+PROGRESS.md
+docs/
 
 # Agent configuration & workspace customizations
 .agents/

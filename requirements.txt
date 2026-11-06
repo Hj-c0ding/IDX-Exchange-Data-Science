@@ -13,3 +13,6 @@ pyogrio==0.13.0
 nbformat==5.11.1
 nbconvert==7.17.1
 ipykernel==7.4.0
+lightgbm==4.7.0
+xgboost==3.4.2
+joblib==1.6.0

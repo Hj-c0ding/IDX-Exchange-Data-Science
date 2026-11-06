@@ -6,7 +6,13 @@ import matplotlib.ticker as mt
 import seaborn as sns
 
 FIG_DIR = Path('outputs/figures')
-MODEL_COLORS = {'LR': '#1f77b4', 'DT': '#ff7f0e', 'RF': '#2ca02c'}   # same model = same color everywhere
+MODEL_COLORS = {
+    'LR': '#1f77b4',
+    'DT': '#ff7f0e',
+    'RF': '#2ca02c',
+    'LightGBM': '#9467bd',
+    'XGBoost': '#d62728',
+}   # same model = same color everywhere
 SET_COLORS = {'F0': '#8c8c8c', 'F1': '#4c9be8', 'F2': '#e8a33d', 'F3': '#2a9d5c'}
 usd = mt.FuncFormatter(lambda x, _: f'${x/1e6:.1f}M' if x >= 1e6 else f'${x/1e3:.0f}k')
 pct = mt.PercentFormatter(xmax=1, decimals=0)

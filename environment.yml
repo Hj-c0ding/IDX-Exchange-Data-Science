@@ -17,3 +17,7 @@ dependencies:
   - pyproj
   - nbformat
   - nbconvert
+  - lightgbm
+  - xgboost
+  - llvm-openmp
+  - joblib
