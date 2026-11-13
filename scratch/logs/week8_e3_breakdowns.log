@@ -1,0 +1,51 @@
+test rows 12,015 | county named for 99.94% | 53 counties
+train-only quintile edges (n_train=127,939, bounds $235,000-$8,900,000): $575,000, $785,000, $1,050,000, $1,595,000
+Cross-check vs outputs/week7_mdape_by_quintile.csv (max abs MdAPE diff per model): LR 5.6e-17, DT 8.3e-17, RF 8.3e-17, LightGBM 1.1e-16, XGBoost 3.7e-08 (PASS)
+
+Counties with n>=200: 10 of 53 (88.5% of test rows); 43 pooled into 'Other'
+ZIPs: 1073 distinct, largest n=74, 0 reach n>=200 -> ZIP-level conclusions are NOT supportable; top 15 saved for transparency, all flagged.
+
+train_quintile (XGBoost):
+          group    n  MdAPE  MdAPE_ci_lo_pct  MdAPE_ci_hi_pct  median_signed_pct_error      MAE  below_min_n
+       Q1 <575k 2333  6.63%         6.271646         7.055935                 2.080218  $53,830        False
+    Q2 575-785k 2205  5.33%         5.062831         5.673210                -0.132825  $56,309        False
+  Q3 785-1,050k 2225  6.02%         5.749269         6.298576                -1.425107  $78,923        False
+Q4 1,050k-1.59M 2548  8.08%         7.668536         8.535390                -2.794108 $140,406        False
+      Q5 >1.59M 2704 11.60%        11.067533        12.177506                -6.632746 $593,873        False
+
+fixed_band (XGBoost):
+    group    n  MdAPE  MdAPE_ci_lo_pct  MdAPE_ci_hi_pct  median_signed_pct_error        MAE  below_min_n
+    <500k 1644  7.51%         6.871710         8.055912                 3.048971    $56,004        False
+500k-750k 2511  5.45%         5.172520         5.717204                -0.132354    $52,696        False
+  750k-1M 2368  5.85%         5.606157         6.106096                -1.062276    $73,917        False
+  1M-1.5M 2464  7.92%         7.570846         8.472816                -2.461580   $133,406        False
+  1.5M-3M 2271 10.16%         9.600993        10.678336                -5.017163   $262,778        False
+      >3M  757 15.90%        14.624628        17.180157               -12.379197 $1,405,592        False
+
+Band contrasts vs the best band (XGBoost):
+         scope            band   best_band   diff_pp  diff_ci_lo_pp  diff_ci_hi_pp  worse_than_best_beyond_noise  n_band
+train_quintile        Q1 <575k Q2 575-785k  1.302705       0.829489       1.814114                          True    2333
+train_quintile   Q3 785-1,050k Q2 575-785k  0.687504       0.255849       1.095496                          True    2225
+train_quintile Q4 1,050k-1.59M Q2 575-785k  2.749535       2.175551       3.314932                          True    2548
+train_quintile       Q5 >1.59M Q2 575-785k  6.272123       5.638078       6.949948                          True    2704
+    fixed_band           <500k   500k-750k  2.067199       1.429048       2.656479                          True    1644
+    fixed_band         750k-1M   500k-750k  0.404139       0.023152       0.779211                          True    2368
+    fixed_band         1M-1.5M   500k-750k  2.476992       2.025141       3.118111                          True    2464
+    fixed_band         1.5M-3M   500k-750k  4.710613       4.053230       5.337672                          True    2271
+    fixed_band             >3M   500k-750k 10.456794       9.238489      11.734047                          True     757
+
+county (XGBoost):
+                          group    n  MdAPE  MdAPE_ci_lo_pct  MdAPE_ci_hi_pct  median_signed_pct_error median_actual_price  below_min_n
+                    Los Angeles 2922  8.34%         7.974156         8.643643                -1.649836          $1,056,825        False
+                      Riverside 1796  5.63%         5.308023         5.876876                -0.709660            $635,000        False
+Other (43 counties, each n<200) 1386  8.21%         7.483338         8.912643                -0.241789            $585,000        False
+                      San Diego 1311  7.69%         7.145768         8.235299                -1.760406          $1,090,000        False
+                 San Bernardino 1189  5.82%         5.356641         6.325320                -0.790503            $550,000        False
+                         Orange 1176  7.24%         6.883779         7.852996                -2.826769          $1,472,500        False
+                        Alameda  611 10.17%         9.089160        11.019705                -2.707609          $1,400,000        False
+                   Contra Costa  597  7.04%         6.177467         7.866016                -1.995100            $970,000        False
+                    Santa Clara  414  9.82%         8.711839        10.902545                -0.635093          $1,964,000        False
+                        Ventura  410  6.75%         6.058208         7.632802                -2.152254          $1,025,000        False
+                San Luis Obispo  203  9.13%         7.782234        10.409078                -1.106086            $995,000        False
+
+Wrote outputs/week8_by_price_band.csv, week8_by_county.csv, week8_by_zip.csv, week8_band_contrasts.csv

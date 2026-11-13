@@ -1,0 +1,43 @@
+Loaded 202,797 single-family rows, 2024-11 to 2026-05 (1.8s)
+Feature-validity rule (LivingArea missing or < 200 sqft): 210 rows excluded (0.104%), 202,587 kept
+937 district polygons (6 invalid geometries repaired)
+Spatial join: rows 202,587 -> 202,587 (asserted equal)
+                            rows     pct
+total                     202587 100.000
+matched                   202485  99.950
+unmatched                    102   0.050
+  null lat/lon                17   0.008
+  outside CA bbox / zero      62   0.031
+  inside CA, no polygon       23   0.011
+
+G1 overlap 2025-04..2026-05: rebuilt 153,714 rows vs v3 153,714 rows
+G1 PASS
+G2 PASS: all 25 feature columns identical across 153,714 overlap rows (row sets equal; the two loads differ only by a permutation of rows sharing a CloseDate)
+G3 PASS: emitted overlap block is byte-identical to 03_features_v3.csv (153,714 rows, ClosePrice + SchoolDistrict sequences exact)
+G4 PASS: all 19 months present, 2024-11..2026-05
+
+County coverage: 99.950% named, 58 distinct
+
+Rows per month:
+Month
+2024-11    10683
+2024-12    10610
+2025-01     8138
+2025-02     8841
+2025-03    10601
+2025-04    11866
+2025-05    11749
+2025-06    11687
+2025-07    12102
+2025-08    11443
+2025-09    11442
+2025-10    12017
+2025-11     9732
+2025-12    10447
+2026-01     7474
+2026-02     8545
+2026-03    11174
+2026-04    12021
+2026-05    12015
+
+E2 PASSED. Wrote outputs/08_features_backtest.csv (202,587 rows x 27 cols, 2024-11..2026-05) in 4.3s

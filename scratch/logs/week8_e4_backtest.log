@@ -1,0 +1,51 @@
+Backtest table: 202,587 rows, 2024-11..2026-05
+Frozen LightGBM: F0, target, mae, val_best_iteration=1998, params={'colsample_bytree': 0.7, 'learning_rate': 0.03, 'max_depth': 10, 'min_child_samples': 10, 'num_leaves': 127, 'reg_lambda': 10.0, 'subsample': 0.9}
+Frozen XGBoost: F0, native, mae, val_best_iteration=1020, params={'colsample_bytree': 0.7, 'learning_rate': 0.1, 'max_depth': 8, 'min_child_weight': 30, 'reg_lambda': 10.0, 'subsample': 1.0}
+
+=== cutoff 2025-11 ===
+train 2024-11..2025-10: 131,179 rows -> 129,253 after train-only price bounds $240,000-$8,300,000 (1,926 dropped) | test 2025-11: 9,732
+  LR        (F3, iter=    1): R2= 0.0218 MAE=$  305,951 RMSE=$ 7,787,006 MAPE=14.75% MdAPE= 9.67% (  2.6s)
+  DT        (F0, iter=    1): R2= 0.0184 MAE=$  340,998 RMSE=$ 7,800,382 MAPE=16.59% MdAPE= 9.99% (  2.2s)
+  RF        (F0, iter=  200): R2= 0.0192 MAE=$  302,049 RMSE=$ 7,797,511 MAPE=13.51% MdAPE= 7.86% ( 83.0s)
+  LightGBM  (F0, iter= 2022): R2= 0.0215 MAE=$  282,358 RMSE=$ 7,788,325 MAPE=12.50% MdAPE= 7.53% ( 34.9s)
+  XGBoost   (F0, iter= 1032): R2= 0.0217 MAE=$  280,525 RMSE=$ 7,787,436 MAPE=12.40% MdAPE= 7.45% (  4.6s)
+
+=== cutoff 2026-02 ===
+train 2025-02..2026-01: 129,401 rows -> 127,471 after train-only price bounds $238,000-$8,500,000 (1,930 dropped) | test 2026-02: 8,545
+  LR        (F3, iter=    1): R2= 0.0110 MAE=$  366,679 RMSE=$10,083,614 MAPE=16.15% MdAPE=10.03% (  2.4s)
+  DT        (F0, iter=    1): R2= 0.0096 MAE=$  390,096 RMSE=$10,090,576 MAPE=17.48% MdAPE=10.32% (  2.3s)
+  RF        (F0, iter=  200): R2= 0.0099 MAE=$  352,698 RMSE=$10,089,132 MAPE=14.34% MdAPE= 8.26% ( 82.9s)
+  LightGBM  (F0, iter= 1994): R2= 0.0108 MAE=$  339,581 RMSE=$10,084,642 MAPE=13.65% MdAPE= 7.71% ( 34.3s)
+  XGBoost   (F0, iter= 1018): R2= 0.0107 MAE=$  335,943 RMSE=$10,084,928 MAPE=13.32% MdAPE= 7.64% (  4.7s)
+
+=== cutoff 2026-04  [TUNING MONTH - optimistic] ===
+train 2025-04..2026-03: 129,678 rows -> 127,734 after train-only price bounds $235,385-$8,700,000 (1,944 dropped) | test 2026-04: 12,021
+  LR        (F3, iter=    1): R2= 0.0099 MAE=$  416,710 RMSE=$11,700,195 MAPE=26.01% MdAPE= 9.62% (  2.5s)
+  DT        (F0, iter=    1): R2= 0.0079 MAE=$  443,501 RMSE=$11,712,281 MAPE=26.57% MdAPE=10.39% (  2.2s)
+  RF        (F0, iter=  200): R2= 0.0081 MAE=$  407,159 RMSE=$11,710,573 MAPE=23.39% MdAPE= 8.16% ( 81.5s)
+  LightGBM  (F0, iter= 1998): R2= 0.0093 MAE=$  387,036 RMSE=$11,703,463 MAPE=22.18% MdAPE= 7.58% ( 34.3s)
+  XGBoost   (F0, iter= 1020): R2= 0.0093 MAE=$  387,001 RMSE=$11,704,008 MAPE=22.44% MdAPE= 7.58% (  4.5s)
+
+G5 (2026-04 cutoff vs outputs/week6_validation.csv, identical rows in identical order):
+  LR  F3: MdAPE 9.620011% vs 9.620011% (d=1.39e-17) | MAE $416,709.64 vs $416,709.64 (d=0.00e+00) -> PASS
+  DT  F0: MdAPE 10.392172% vs 10.392172% (d=2.78e-17) | MAE $443,500.66 vs $443,500.66 (d=5.82e-11) -> PASS
+  RF  F0: MdAPE 8.162994% vs 8.162994% (d=3.21e-15) | MAE $407,159.42 vs $407,159.42 (d=0.00e+00) -> PASS
+G5 PASS (boosters are expected to differ: scaled iterations, not early stopping)
+
+MdAPE by cutoff (2026-04 = tuning month, optimistic; 2026-05 = held-out test, Week 7 numbers):
+model       DT     LR  LightGBM    RF  XGBoost
+cutoff                                        
+2025-11   9.99   9.67      7.53  7.86     7.45
+2026-02  10.32  10.03      7.71  8.26     7.64
+2026-04  10.39   9.62      7.58  8.16     7.58
+2026-05  10.32   9.58      7.40  8.19     7.38
+
+MAE by cutoff:
+model          DT        LR  LightGBM        RF   XGBoost
+cutoff                                                   
+2025-11  340998.0  305951.0  282358.0  302049.0  280525.0
+2026-02  390096.0  366679.0  339581.0  352698.0  335943.0
+2026-04  443501.0  416710.0  387036.0  407159.0  387001.0
+2026-05  256543.0  228645.0  198928.0  220621.0  198830.0
+
+Wrote outputs/week8_backtest.csv
